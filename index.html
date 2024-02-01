@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <title>TODOS</title>
+</head>
+<style>
+    body {
+        background-color: rgb(241, 240, 240);
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    header {
+        color: white;
+        padding: 0.2rem;
+        background-color: rgba(8, 8, 191, 0.668);
+    }
+
+    header>h1 {
+        text-align: center;
+    }
+
+    .todo__form {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 0.8rem;
+    }
+
+    form {
+        width: 100%;
+        display: grid;
+        gap: 0.8rem;
+        max-width: 650px;
+    }
+
+    label {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    label>span {
+        font-weight: bold;
+    }
+
+    input {
+        font-size: 1.1rem;
+    }
+
+    .input__text {
+        width: 100%;
+    }
+
+    .input__complete {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    button {
+        outline: 0;
+        padding: 0.5rem;
+        border-radius: 0.3rem;
+        margin: auto;
+        font-size: 0.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        border: 0;
+    }
+
+    .todo__formBtn {
+        color: white;
+        background-color: rgba(8, 8, 191, 0.668);
+    }
+
+    .todo__formBtn:hover {
+        transition: all ease-in 300ms;
+        opacity: 0.8;
+    }
+
+    .todos {
+        list-style: none;
+        display: grid;
+        gap: 0.8rem;
+    }
+
+    .todo {
+        border-radius: 0.8rem;
+        display: grid;
+        max-width: 650px;
+        width: 100%;
+        margin: auto;
+        background-color: white;
+    }
+
+    .todo__added {
+        animation: sayam 300ms ease-in forwards;
+    }
+
+    @keyframes sayam {
+        0% {
+            transform: scale(0.5) rotate(20deg);
+            opacity: 0;
+            background-color: lightblue;
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    .todo__stat {
+        font-size: small;
+        padding: 0.5rem;
+        background-color: #ccc;
+        display: flex;
+        border-bottom-left-radius: 0.8rem;
+        border-bottom-right-radius: 0.8rem;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .todo__text {
+        padding: 0.5rem;
+    }
+
+    .todo__text>h2 {
+        margin-block: 0.1rem;
+    }
+</style>
+
+<body>
+    <header>
+        <h1>Todos</h1>
+    </header>
+    <main>
+        <section class="todo__form">
+            <form id="todosForm">
+                <label for="description">
+                    <span>Description :</span>
+                    <input class="input__text" type="text" placeholder="Write your description of work" required
+                        minlength="3" id="description" name="description" />
+                </label>
+                <label for="title">
+                    <span>Title : </span>
+                    <input type="text" class="input__text" placeholder="Title" required minlength="3" id="title"
+                        name="title" />
+                </label>
+                <label for="date">
+                    <span>Date :</span>
+                    <input type="date" name="date" id="date" class="input__date">
+                </label>
+                <label class="input__complete" for="complete">
+                    <span>Completed or Not ? :</span>
+                    <input type="checkbox" name="complete" id="complete" class="input__bool" />
+                </label>
+                <button type="submit" class="todo__formBtn">Add todo</button>
+            </form>
+        </section>
+        <section class="todos__list">
+            <ul id="todos" class="todos">
+            </ul>
+        </section>
+    </main>
+    <script>
+        const todosForm = document.getElementById("todosForm");
+        const todos = document.getElementById("todos");
+        todosForm.onsubmit = function (e) {
+            e.preventDefault();
+            const form = new FormData(todosForm);
+            const newTodo = {}
+            for (const [key, value] of form.entries()) newTodo[key] = value;
+            if (!isTodoValid(newTodo)) {
+                alert("Todo not valid !");
+                return;
+            };
+            const liTodo = createNewTodo(newTodo);
+            const oldTodosStr = localStorage.getItem("todos") || "[]";
+            const savedTodos = JSON.parse(oldTodosStr);
+            localStorage.setItem("todos", JSON.stringify([...savedTodos, newTodo]));
+            todos.prepend(liTodo);
+            todosForm.reset();
+        }
+        function isTodoValid(todo) {
+            return todo.title.length > 3 && todo.description.length > 3
+        }
+        function createNewTodo(todo) {
+            const li = document.createElement("li");
+            li.classList.add("todo");
+            li.classList.add("todo__added");
+            setTimeout(() => {
+                li.classList.toggle("todo_added");
+            }, 300)
+            const todoText = document.createElement("div");
+            todoText.classList.add("todo__text");
+            const title = document.createElement("h2");
+            title.innerText = todo.title;
+            const description = document.createElement("p");
+            description.innerText = todo.description;
+            todoText.append(title);
+            todoText.append(description);
+            const todoStat = document.createElement("div");
+            todoStat.classList.add("todo__stat");
+            const date = document.createElement("span")
+            date.innerText = todo.date;
+            const completed = document.createElement("span")
+            completed.innerText = todo.completed && todo.completed === "on" ? "Incomplete" : "Complete";
+            console.log(completed);
+            todoStat.append(date)
+            todoStat.append(completed)
+            li.append(todoText);
+            li.append(todoStat);
+            return li;
+        }
+        window.onload = function () {
+            const storedTodos = localStorage.getItem("todos") ? JSON.parse(localStorage.getItem("todos")) : [];
+            storedTodos.forEach(todo => {
+                const oldTodo = createNewTodo(todo);
+                todos.append(oldTodo);
+            })
+        }
+    </script>
+</body>
+
+</html>
